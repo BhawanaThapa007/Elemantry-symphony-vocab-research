@@ -435,7 +435,9 @@ function loadNextWord() {
         const student = window.AUTH.getCurrentUser();
         const studentLevel = student.currentDifficulty || 2.0;
         
-        const availableWords = window.VOCABULARY.unit1.words;
+       // Get random unit (Unit 1 or 2)
+const randomUnit = Math.random() > 0.5 ? 'unit1' : 'unit2';
+const availableWords = window.VOCABULARY[randomUnit].words;
         
         currentWord = window.AI_ENGINE.selectNextWord(availableWords, studentLevel);
         
