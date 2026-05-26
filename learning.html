@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning - Symphony Vocab</title>
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        /* Learning Interface Specific Styles */
+        body {
+            background: #f5f7fa;
+            overflow-x: hidden;
+        }
+        
+        /* Header */
+        .learning-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left h1 {
+            font-size: 20px;
+            margin: 0 0 4px 0;
+        }
+        
+        .header-left p {
+            margin: 0;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .progress-mini-header {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        /* Main Container */
+        .learning-container {
+            max-width: 900px;
+            margin: 32px auto;
+            padding: 0 24px;
+        }
+        
+        /* Word Card (CTML Implementation) */
+        .word-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 48px;
+            margin-bottom: 32px;
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        /* CTML: Multimedia Presentation */
+        .word-display {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .word-image-container {
+            margin-bottom: 24px;
+        }
+        
+        .word-image {
+            max-width: 100%;
+            height: 300px;
+            object-fit: contain;
+            border-radius: 16px;
+        }
+        
+        /* CTML: Modality - Audio Button */
+        .audio-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 24px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .audio-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+        
+        .audio-button:active {
+            transform: translateY(0);
+        }
+        
+        /* Word Text */
+        .word-text {
+            font-size: 56px;
+            font-weight: 700;
+            color: #333;
+            margin: 16px 0;
+            letter-spacing: 1px;
+        }
+        
+        .word-pronunciation {
+            font-size: 18px;
+            color: #667eea;
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+        
+        /* Definition appears after audio (CTML Modality) */
+        .word-definition {
+            font-size: 20px;
+            color: #666;
+            line-height: 1.8;
+            margin: 24px 0;
+            padding: 24px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+        
+        /* Question Area (ZPD Scaffolding) */
+        .question-container {
+            background: #f8f9fa;
+            padding: 32px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .question-prompt {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        
+        .hint-text {
+            font-size: 15px;
+            color: #667eea;
+            font-style: italic;
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 8px;
+        }
+        
+        .visual-clue {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: #667eea;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        /* Answer Input */
+        .answer-input {
+            width: 100%;
+            padding: 18px 24px;
+            font-size: 18px;
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* Multiple Choice Options */
+        .choice-options {
+            display: grid;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .choice-option {
+            padding: 20px 24px;
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 18px;
+            text-align: left;
+        }
+        
+        .choice-option:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateX(4px);
+        }
+        
+        .choice-option.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        /* Submit Button */
+        .submit-button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .submit-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+        
+        .submit-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Feedback Area (SDT Competence + CTML Personalization) */
+        .feedback-container {
+            padding: 32px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+            text-align: center;
+            animation: slideUp 0.4s ease-out;
+        }
+        
+        .feedback-container.correct {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border: 3px solid #4caf50;
+        }
+        
+        .feedback-container.incorrect {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border: 3px solid #ff9800;
+        }
+        
+        .feedback-icon {
+            font-size: 80px;
+            margin-bottom: 16px;
+            animation: pulse 0.6s ease-out;
+        }
+        
+        .feedback-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .feedback-message {
+            font-size: 20px;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        
+        .feedback-points {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        /* Navigation Buttons */
+        .navigation-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: space-between;
+        }
+        
+        .nav-btn {
+            flex: 1;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .nav-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+        
+        .nav-btn-secondary {
+            background: white;
+            border: 2px solid #e0e0e0;
+            color: #666;
+        }
+        
+        .nav-btn-secondary:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        /* AI Companion (SDT Relatedness) */
+        .ai-companion {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            max-width: 320px;
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            z-index: 1000;
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        .ai-avatar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .ai-avatar-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .ai-avatar-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .ai-message {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .ai-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0.5;
+        }
+        
+        .ai-close:hover {
+            opacity: 1;
+        }
+        
+        /* Progress Sidebar */
+        .progress-sidebar {
+            position: fixed;
+            left: 24px;
+            top: 120px;
+            width: 280px;
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        .progress-sidebar h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .progress-sidebar {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .word-card {
+                padding: 32px 24px;
+            }
+            
+            .word-text {
+                font-size: 40px;
+            }
+            
+            .ai-companion {
+                bottom: 80px;
+                right: 16px;
+                left: 16px;
+                max-width: none;
+            }
+        }
+        
+        /* Loading State */
+        .loading-word {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #e0e0e0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Completion Screen */
+        .completion-screen {
+            text-align: center;
+            padding: 60px 40px;
+        }
+        
+        .completion-icon {
+            font-size: 120px;
+            margin-bottom: 24px;
+            animation: pulse 2s infinite;
+        }
+        
+        .completion-title {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .completion-message {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 32px;
+        }
+        
+        .completion-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .completion-stat {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        
+        .completion-stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .completion-stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="learning-header">
+    <div class="header-content">
+        <div class="header-left">
+            <h1 id="headerTitle">📚 Learning Vocabulary</h1>
+            <p id="headerSubtitle">Unit 1: School & Learning</p>
+        </div>
+        <div class="header-right">
+            <div class="progress-mini-header">
+                <span id="headerProgress">0 / 15 words</span>
+            </div>
+            <button class="btn btn-sm btn-outline" onclick="pauseLearning()" style="background: rgba(255,255,255,0.2); border-color: white; color: white;">
+                ⏸️ Pause
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Main Container -->
+<div class="learning-container">
+    
+    <!-- Word Card -->
+    <div id="wordCard" class="word-card">
+        
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-word">
+            <div class="loading-spinner"></div>
+            <p style="color: #666; font-size: 18px;">Loading next word...</p>
+        </div>
+        
+        <!-- Word Display (CTML: Multimedia) -->
+        <div id="wordDisplay" class="word-display hidden">
+            
+            <!-- Image (Visual Channel) -->
+            <div class="word-image-container">
+                <img id="wordImage" class="word-image" src="" alt="Word illustration">
+            </div>
+            
+            <!-- Audio Button (CTML: Modality Principle) -->
+            <button id="audioBtn" class="audio-button" onclick="playWordAudio()">
+                🔊 Listen to the word
+            </button>
+            
+            <!-- Word Text -->
+            <div id="wordText" class="word-text"></div>
+            <div id="wordPronunciation" class="word-pronunciation"></div>
+            
+            <!-- Definition (appears after audio - CTML: Segmenting) -->
+            <div id="wordDefinition" class="word-definition hidden"></div>
+            
+        </div>
+        
+        <!-- Question Area (ZPD: Scaffolded Learning) -->
+        <div id="questionContainer" class="question-container hidden">
+            <div class="question-prompt" id="questionPrompt"></div>
+            <div class="hint-text hidden" id="hintText"></div>
+            <div class="visual-clue hidden" id="visualClue"></div>
+            
+            <!-- Text Input -->
+            <input 
+                type="text" 
+                id="answerInput" 
+                class="answer-input hidden" 
+                placeholder="Type your answer here..."
+                onkeypress="handleEnterKey(event)"
+            >
+            
+            <!-- Multiple Choice Options -->
+            <div id="choiceOptions" class="choice-options hidden"></div>
+            
+            <!-- Submit Button -->
+            <button id="submitBtn" class="submit-button" onclick="submitAnswer()">
+                Submit Answer
+            </button>
+        </div>
+        
+        <!-- Feedback Area (SDT: Competence + CTML: Personalization) -->
+        <div id="feedbackContainer" class="feedback-container hidden">
+            <div class="feedback-icon" id="feedbackIcon"></div>
+            <div class="feedback-title" id="feedbackTitle"></div>
+            <div class="feedback-message" id="feedbackMessage"></div>
+            <div class="feedback-points" id="feedbackPoints"></div>
+        </div>
+        
+        <!-- Navigation Buttons -->
+        <div id="navigationButtons" class="navigation-buttons hidden">
+            <button class="nav-btn nav-btn-secondary" onclick="skipWord()">
+                Skip Word
+            </button>
+            <button class="nav-btn nav-btn-primary" onclick="nextWord()">
+                Next Word →
+            </button>
+        </div>
+        
+    </div>
+    
+</div>
+
+<!-- Progress Sidebar (Desktop Only) -->
+<div class="progress-sidebar">
+    <h3>📊 Session Progress</h3>
+    <div class="stat-item">
+        <span class="stat-label">Words Attempted</span>
+        <span class="stat-value" id="wordsAttempted">0</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-label">Correct Answers</span>
+        <span class="stat-value" id="correctAnswers">0</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-label">Points Earned</span>
+        <span class="stat-value" id="pointsEarned">0</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-label">Success Rate</span>
+        <span class="stat-value" id="successRate">0%</span>
+    </div>
+</div>
+
+<!-- AI Companion (SDT: Relatedness) -->
+<div id="aiCompanion" class="ai-companion">
+    <button class="ai-close" onclick="closeAICompanion()">×</button>
+    <div class="ai-avatar">
+        <div class="ai-avatar-icon">🤖</div>
+        <div class="ai-avatar-name">Lexi</div>
+    </div>
+    <div class="ai-message" id="aiMessage">
+        Hi! I'm here to help you learn. Let's start with your first word!
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/ai-engine.js"></script>
+<script src="js/gamification.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/vocabulary-data.js"></script>
+
+<script>
+/**
+ * LEARNING INTERFACE - MAIN LOGIC
+ * Implements all theoretical frameworks in practice
+ */
+
+// State Management
+let currentWord = null;
+let attemptNumber = 0;
+let wordsLearned = 0;
+let sessionStats = {
+    wordsAttempted: 0,
+    correctAnswers: 0,
+    pointsEarned: 0,
+    startTime: Date.now()
+};
+
+// Initialize
+function initLearning() {
+    // Check authentication
+    if (!window.AUTH || !window.AUTH.isStudent()) {
+        alert('Please login first!');
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    // Load first word
+    loadNextWord();
+}
+
+// Load next word (AI selects based on ZPD)
+function loadNextWord() {
+    // Show loading
+    document.getElementById('loadingState').classList.remove('hidden');
+    document.getElementById('wordDisplay').classList.add('hidden');
+    document.getElementById('questionContainer').classList.add('hidden');
+    document.getElementById('feedbackContainer').classList.add('hidden');
+    document.getElementById('navigationButtons').classList.add('hidden');
+    
+    setTimeout(() => {
+        // Get student level
+        const student = window.AUTH.getCurrentUser();
+        const studentLevel = student.currentDifficulty || 2.0;
+        
+        // Get available words (Unit 1)
+        const availableWords = window.VOCABULARY.unit1.words;
+        
+        // AI selects next word
+        currentWord = window.AI_ENGINE.selectNextWord(availableWords, studentLevel);
+        
+        if (!currentWord) {
+            // All words mastered!
+            showCompletionScreen();
+            return;
+        }
+        
+        // Reset attempt number
+        attemptNumber = 0;
+        
+        // Display word
+        displayWord();
+        
+        // Update AI companion message
+        updateAIMessage('introduction');
+        
+    }, 800);
+}
+
+// Display word (CTML: Multimedia Presentation)
+function displayWord() {
+    // Hide loading
+    document.getElementById('loadingState').classList.add('hidden');
+    
+    // Show word display
+    document.getElementById('wordDisplay').classList.remove('hidden');
+    
+    // Set image (CTML: Multimedia - Visual Channel)
+    document.getElementById('wordImage').src = currentWord.imageUrl;
+    document.getElementById('wordImage').alt = currentWord.imageDescription;
+    
+    // Set word text (initially shown)
+    document.getElementById('wordText').textContent = '';
+    document.getElementById('wordPronunciation').textContent = '';
+    
+    // Hide definition initially (CTML: Segmenting)
+    document.getElementById('wordDefinition').classList.add('hidden');
+    
+    // Auto-play audio if enabled
+    const config = window.SYMPHONY_CONFIG.CTML;
+    if (config.AUTO_PLAY_AUDIO) {
+        setTimeout(() => {
+            playWordAudio();
+        }, 500);
+    }
+}
+
+// Play word audio (CTML: Modality Principle)
+function playWordAudio() {
+    // Show word text after audio starts
+    document.getElementById('wordText').textContent = currentWord.word;
+    document.getElementById('wordPronunciation').textContent = currentWord.pronunciation;
+    
+    // Speak the word using Web Speech API
+    const text = currentWord.audioScript || 
+        `${currentWord.word}. ${currentWord.word}. ${currentWord.definition}. Example: ${currentWord.examples[0]}`;
+    
+    Utils.speak(text, window.SYMPHONY_CONFIG.CTML.AUDIO_RATE);
+    
+    // Show definition after audio completes (CTML: Modality)
+    setTimeout(() => {
+        document.getElementById('wordDefinition').textContent = currentWord.definition;
+        document.getElementById('wordDefinition').classList.remove('hidden');
+        
+        // CTML: Segmenting - Pause before showing question
+        setTimeout(() => {
+            showQuestion();
+        }, window.SYMPHONY_CONFIG.CTML.PAUSE_DURATION);
+        
+    }, 3000); // Approximate audio duration
+}
+
+// Show question (ZPD: Scaffolded)
+function showQuestion() {
+    // Get scaffolding for current attempt
+    const scaffold = window.AI_ENGINE.getScaffolding(currentWord, attemptNumber);
+    
+    // Show question container
+    document.getElementById('questionContainer').classList.remove('hidden');
+    
+    // Set prompt
+    document.getElementById('questionPrompt').textContent = scaffold.prompt;
+    
+    // Show hint if available
+    if (scaffold.hint) {
+        document.getElementById('hintText').textContent = scaffold.hint;
+        document.getElementById('hintText').classList.remove('hidden');
+    } else {
+        document.getElementById('hintText').classList.add('hidden');
+    }
+    
+    // Show visual clue if available
+    if (scaffold.visualClue) {
+        document.getElementById('visualClue').textContent = scaffold.visualClue;
+        document.getElementById('visualClue').classList.remove('hidden');
+    } else {
+        document.getElementById('visualClue').classList.add('hidden');
+    }
+    
+    // Show appropriate input type
+    if (scaffold.type === 'multipleChoice') {
+        showMultipleChoice(scaffold.options);
+    } else {
+        showTextInput();
+    }
+    
+    // Update AI companion
+    updateAIMessage('question', attemptNumber);
+}
+
+// Show text input
+function showTextInput() {
+    document.getElementById('answerInput').classList.remove('hidden');
+    document.getElementById('choiceOptions').classList.add('hidden');
+    document.getElementById('answerInput').value = '';
+    document.getElementById('answerInput').focus();
+}
+
+// Show multiple choice
+function showMultipleChoice(options) {
+    document.getElementById('answerInput').classList.add('hidden');
+    
+    const container = document.getElementById('choiceOptions');
+    container.classList.remove('hidden');
+    container.innerHTML = '';
+    
+    options.forEach((option, index) => {
+        const optionEl = document.createElement('div');
+        optionEl.className = 'choice-option';
+        optionEl.textContent = option.text;
+        optionEl.onclick = () => selectChoice(index);
+        optionEl.dataset.index = index;
+        container.appendChild(optionEl);
+    });
+}
+
+// Select choice
+function selectChoice(index) {
+    document.querySelectorAll('.choice-option').forEach((el, i) => {
+        if (i === index) {
+            el.classList.add('selected');
+        } else {
+            el.classList.remove('selected');
+        }
+    });
+}
+
+// Handle enter key
+function handleEnterKey(event) {
+    if (event.key === 'Enter') {
+        submitAnswer();
+    }
+}
+
+// Submit answer
+function submitAnswer() {
+    let userAnswer = '';
+    
+    // Get answer based on input type
+    const scaffold = window.AI_ENGINE.getScaffolding(currentWord, attemptNumber);
+    
+    if (scaffold.type === 'multipleChoice') {
+        const selected = document.querySelector('.choice-option.selected');
+        if (!selected) {
+            alert('Please select an answer!');
+            return;
+        }
+        const selectedIndex = parseInt(selected.dataset.index);
+        userAnswer = scaffold.options[selectedIndex].text;
+    } else {
+        userAnswer = document.getElementById('answerInput').value.trim();
+        if (!userAnswer) {
+            alert('Please type your answer!');
+            return;
+        }
+    }
+    
+    // Check answer
+    const result = window.AI_ENGINE.checkAnswer(
+        currentWord,
+        userAnswer,
+        currentWord.word,
+        attemptNumber
+    );
+    
+    // Update session stats
+    sessionStats.wordsAttempted++;
+    if (result.correct) {
+        sessionStats.correctAnswers++;
+    }
+    sessionStats.pointsEarned += result.points;
+    updateSessionStats();
+    
+    // Show feedback
+    showFeedback(result);
+    
+    // Update attempt number
+    if (!result.correct) {
+        attemptNumber++;
+    }
+}
+
+// Show feedback (SDT: Competence + CTML: Personalization)
+function showFeedback(result) {
+    // Hide question
+    document.getElementById('questionContainer').classList.add('hidden');
+    
+    // Show feedback
+    const container = document.getElementById('feedbackContainer');
+    container.classList.remove('hidden');
+    container.className = 'feedback-container ' + (result.correct ? 'correct' : 'incorrect');
+    
+    document.getElementById('feedbackIcon').textContent = result.feedback.icon;
+    document.getElementById('feedbackTitle').textContent = result.feedback.title;
+    document.getElementById('feedbackMessage').textContent = result.feedback.message;
+    
+    if (result.points > 0) {
+        document.getElementById('feedbackPoints').textContent = `+${result.points} points! 🎉`;
+        
+        // Award points (triggers gamification)
+        window.GAMIFICATION.awardPoints(result.points, result.feedback.title);
+    } else {
+        document.getElementById('feedbackPoints').textContent = '';
+    }
+    
+    // Show navigation
+    document.getElementById('navigationButtons').classList.remove('hidden');
+    
+    // Update AI companion
+    updateAIMessage('feedback', result.correct, attemptNumber);
+    
+    // If incorrect and not at max scaffolding, show next level
+    if (!result.correct && attemptNumber < 4) {
+        setTimeout(() => {
+            document.getElementById('feedbackContainer').classList.add('hidden');
+            showQuestion();
+        }, 3000);
+    } else if (result.correct) {
+        // Word learned!
+        wordsLearned++;
+        updateHeaderProgress();
+        
+        // Update session
+        window.AUTH.updateSession({
+            wordsLearned: wordsLearned,
+            wordsAttempted: [...(window.STORAGE.getCurrentSession()?.wordsAttempted || []), currentWord.id]
+        });
+    }
+}
+
+// Next word
+function nextWord() {
+    loadNextWord();
+}
+
+// Skip word
+function skipWord() {
+    if (confirm('Are you sure you want to skip this word? You can come back to it later.')) {
+        loadNextWord();
+    }
+}
+
+// Pause learning
+function pauseLearning() {
+    if (confirm('Pause learning and return to dashboard?')) {
+        window.location.href = 'student-dashboard.html';
+    }
+}
+
+// Update AI companion message
+function updateAIMessage(stage, ...args) {
+    const messages = {
+        introduction: [
+            "Great! Let's learn this word together!",
+            "This is an interesting word! Ready?",
+            "You're doing great! Here's your next word!"
+        ],
+        question: [
+            "Take your time. You can do this!",
+            "Think carefully. I believe in you!",
+            "You're doing well! Give it your best try!"
+        ],
+        feedback: {
+            correct: [
+                "Excellent work! You're really learning!",
+                "Fantastic! Keep up the great work!",
+                "You're becoming a vocabulary expert!"
+            ],
+            incorrect: [
+                "That's okay! Learning takes practice.",
+                "Don't worry, let's try a different approach!",
+                "You're doing fine! Let me help you."
+            ]
+        }
+    };
+    
+    let message = '';
+    
+    if (stage === 'introduction') {
+        message = Utils.randomSelect(messages.introduction);
+    } else if (stage === 'question') {
+        message = Utils.randomSelect(messages.question);
+    } else if (stage === 'feedback') {
+        const [correct] = args;
+        message = Utils.randomSelect(messages.feedback[correct ? 'correct' : 'incorrect']);
+    }
+    
+    document.getElementById('aiMessage').textContent = message;
+}
+
+// Update session stats
+function updateSessionStats() {
+    document.getElementById('wordsAttempted').textContent = sessionStats.wordsAttempted;
+    document.getElementById('correctAnswers').textContent = sessionStats.correctAnswers;
+    document.getElementById('pointsEarned').textContent = sessionStats.pointsEarned;
+    
+    const successRate = sessionStats.wordsAttempted > 0
+        ? Math.round((sessionStats.correctAnswers / sessionStats.wordsAttempted) * 100)
+        : 0;
+    document.getElementById('successRate').textContent = successRate + '%';
+}
+
+// Update header progress
+function updateHeaderProgress() {
+    const student = window.AUTH.getCurrentUser();
+    const total = 15; // Unit 1 total words
+    document.getElementById('headerProgress').textContent = `${student.wordsLearned || 0} / ${total} words`;
+}
+
+// Close AI companion
+function closeAICompanion() {
+    document.getElementById('aiCompanion').style.display = 'none';
+}
+
+// Show completion screen
+function showCompletionScreen() {
+    const student = window.AUTH.getCurrentUser();
+    
+    document.getElementById('wordCard').innerHTML = `
+        <div class="completion-screen">
+            <div class="completion-icon">🎉</div>
+            <div class="completion-title">Congratulations!</div>
+            <div class="completion-message">
+                You've completed Unit 1: School & Learning!
+            </div>
+            
+            <div class="completion-stats">
+                <div class="completion-stat">
+                    <div class="completion-stat-value">${student.wordsLearned}</div>
+                    <div class="completion-stat-label">Words Learned</div>
+                </div>
+                <div class="completion-stat">
+                    <div class="completion-stat-value">${sessionStats.pointsEarned}</div>
+                    <div class="completion-stat-label">Points Earned</div>
+                </div>
+                <div class="completion-stat">
+                    <div class="completion-stat-value">${Math.round((sessionStats.correctAnswers / sessionStats.wordsAttempted) * 100)}%</div>
+                    <div class="completion-stat-label">Success Rate</div>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary btn-lg" onclick="window.location.href='student-dashboard.html'">
+                Return to Dashboard
+            </button>
+        </div>
+    `;
+    
+    // Play celebration
+    window.GAMIFICATION.playConfetti();
+    
+    // Award unit completion bonus
+    window.GAMIFICATION.awardPoints(window.SYMPHONY_CONFIG.POINTS.UNIT_COMPLETE, 'Unit 1 Complete!');
+    
+    // Check for Unit Master badge
+    window.STORAGE.checkBadges(student);
+}
+
+// Initialize on page load
+window.addEventListener('load', () => {
+    initLearning();
+    updateHeaderProgress();
+});
+
+// Save on unload
+window.addEventListener('beforeunload', () => {
+    if (window.AUTH && window.AUTH.isStudent()) {
+        window.STORAGE.autoSave();
+    }
+});
+</script>
+
+</body>
+</html>
