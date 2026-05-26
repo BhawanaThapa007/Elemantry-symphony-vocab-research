@@ -361,8 +361,8 @@
                 🔊 Listen to the word
             </button>
             
-            <div id="wordText" class="word-text"></div>
-            <div id="wordPronunciation" class="word-pronunciation"></div>
+            <div id="wordText" class="word-text hidden"></div>
+<div id="wordPronunciation" class="word-pronunciation hidden"></div>
             
             <div id="wordDefinition" class="word-definition hidden"></div>
         </div>
@@ -471,7 +471,10 @@ function displayWord() {
 }
 
 function playWordAudio() {
+    // Show word and pronunciation
+    document.getElementById('wordText').classList.remove('hidden');
     document.getElementById('wordText').textContent = currentWord.word;
+    document.getElementById('wordPronunciation').classList.remove('hidden');
     document.getElementById('wordPronunciation').textContent = currentWord.pronunciation;
     
     const text = currentWord.audioScript || 
