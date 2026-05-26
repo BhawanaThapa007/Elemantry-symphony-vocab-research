@@ -72,7 +72,7 @@ const CONFIG = {
         AUDIO_RATE: 0.8,                   // Slower for EFL learners
         SEGMENT_SIZE: 5,                   // 5-7 words per chunk
         PAUSE_DURATION: 3000,              // 3 seconds between words (ms)
-        AUTO_PLAY_AUDIO: true              // Audio plays automatically
+        AUTO_PLAY_AUDIO: false             // Audio plays automatically
     },
     
     // NATION'S FOUR STRANDS
