@@ -440,6 +440,42 @@ function loadNextWord() {
     document.getElementById('navigationButtons').classList.add('hidden');
     
     setTimeout(() => {
+        try {
+            // Check if vocabulary is loaded
+            if (!window.VOCABULARY || !window.VOCABULARY.unit1 || !window.VOCABULARY.unit1.words) {
+                console.error('Vocabulary not loaded!');
+                alert('Error: Vocabulary data not loaded. Please refresh the page.');
+                location.reload();
+                return;
+            }
+            
+            const student = window.AUTH.getCurrentUser();
+            if (!student) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            const studentLevel = student.currentDifficulty || 2.0;
+            const availableWords = window.VOCABULARY.unit1.words;
+            
+            currentWord = window.AI_ENGINE.selectNextWord(availableWords, studentLevel);
+            
+            if (!currentWord) {
+                showCompletionScreen();
+                return;
+            }
+            
+            attemptNumber = 0;
+            displayWord();
+            
+        } catch (error) {
+            console.error('Error loading word:', error);
+            alert('Error: ' + error.message);
+            location.reload();
+        }
+    }, 1000);
+}
+    setTimeout(() => {
         const student = window.AUTH.getCurrentUser();
         const studentLevel = student.currentDifficulty || 2.0;
         
