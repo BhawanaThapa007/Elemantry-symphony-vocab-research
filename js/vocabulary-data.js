@@ -1031,7 +1031,55 @@ const VOCABULARY_DATABASE = {
         ]
     }
 };
-
+,
+    unit2: {
+        id: 'unit-02',
+        title: 'Daily Activities',
+        description: 'Words for everyday activities',
+        totalWords: 15,
+        
+        words: [
+            {
+                id: 'w016',
+                word: 'wake',
+                pronunciation: '/weɪk/',
+                partOfSpeech: 'verb',
+                syllables: 1,
+                tier: 2,
+                difficulty: 1.5,
+                
+                definition: 'To stop sleeping and become awake',
+                simpleDefinition: 'To get up from sleep',
+                
+                examples: [
+                    'I wake up at 7 AM.',
+                    'She wakes early every day.',
+                    'We wake to the sound of birds.',
+                    'The alarm wakes me.'
+                ],
+                
+                wordFamily: { noun: 'awakening', adjective: 'awake' },
+                synonyms: ['awaken', 'rise', 'get up'],
+                antonyms: ['sleep', 'rest'],
+                
+                imageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23fff3e0" width="400" height="300"/%3E%3Ccircle cx="200" cy="130" r="60" fill="%23ffe082"/%3E%3Ctext x="200" y="145" text-anchor="middle" font-size="40"%3E😴%3C/text%3E%3Ctext x="200" y="250" text-anchor="middle" font-size="18" fill="%23333"%3EWaking Up%3C/text%3E%3C/svg%3E',
+                
+                audioScript: 'Wake. Wake. To stop sleeping and become awake. I wake up at 7 AM. Wake.',
+                
+                scaffolding: {
+                    level0: { type: 'independent', prompt: 'What do you do when your alarm goes off in the morning?', hint: null },
+                    level1: { type: 'contextual', prompt: 'When you stop sleeping in the morning, you...', hint: 'You get up from your bed.' },
+                    level2: { type: 'phonological', prompt: 'The word starts with "W" and sounds like: wake', hint: 'It has 1 syllable', visualClue: 'W - A - K _' },
+                    level3: { type: 'multipleChoice', prompt: 'What word means to stop sleeping?', options: [
+                        { text: 'wake', correct: true },
+                        { text: 'make', correct: false },
+                        { text: 'take', correct: false }
+                    ]},
+                    level4: { type: 'directTeaching', teaching: 'The word is WAKE (W-A-K-E). It means to stop sleeping. Example: I wake up early.' }
+                }
+            }
+        ]
+    }
 // Make vocabulary available globally
 window.VOCABULARY = VOCABULARY_DATABASE;
 
