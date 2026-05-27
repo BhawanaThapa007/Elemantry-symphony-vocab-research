@@ -12,34 +12,50 @@ class AIVocabularyEngine {
     
     // Select next word based on ZPD
     selectNextWord(availableWords, studentLevel = 2.0) {
-        const config = window.SYMPHONY_CONFIG.ZPD;
-        
-        // Get student progress
-        const student = window.AUTH.getCurrentUser();
-        if (!student) return null;
-        
-        // Filter out mastered words
-        const unmastered = availableWords.filter(word => {
-            const progress = window.STORAGE.getWordProgress(word.id);
-            return !progress || !progress.mastered;
-        });
-        
-        if (unmastered.length === 0) {
-            return null; // All words mastered!
-        }
-        
-        // Find words in ZPD (difficulty near student level)
-        const zpdWords = unmastered.filter(word => {
-            return word.difficulty >= studentLevel - 0.5 &&
-                   word.difficulty <= studentLevel + 0.8;
-        });
-        
-        // Prioritize words never attempted
-        const neverAttempted = zpdWords.filter(word => {
-            const progress = window.STORAGE.getWordProgress(word.id);
-            return !progress || progress.attempts.length === 0;
-        });
-        
+    const config = window.SYMPHONY_CONFIG.ZPD;
+    
+    const student = window.AUTH.getCurrentUser();
+    if (!student) return null;
+    
+    // Get words that haven't been mastered yet
+    const unmastered = availableWords.filter(word => {
+        const progress = window.STORAGE.getWordProgress(word.id);
+        return !progress || !progress.mastered;
+    });
+    
+    if (unmastered.length === 0) {
+        return null;
+    }
+    
+    // Get words within ZPD range
+    const zpdWords = unmastered.filter(word => {
+        return word.difficulty >= studentLevel - 0.5 &&
+               word.difficulty <= studentLevel + 0.8;
+    });
+    
+    // Prioritize words that haven't been attempted yet
+    const neverAttempted = zpdWords.filter(word => {
+        const progress = window.STORAGE.getWordProgress(word.id);
+        return !progress || progress.attempts.length === 0;
+    });
+    
+    // Choose which pool to select from
+    let selectedWords = neverAttempted.length > 0 ? neverAttempted : zpdWords;
+    if (selectedWords.length === 0) selectedWords = unmastered;
+    
+    // Shuffle and pick random to avoid repetition
+    const shuffled = this.shuffleArray(selectedWords);
+    return shuffled[0];
+}
+
+shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
         // Select word
         let selectedWords = neverAttempted.length > 0 ? neverAttempted : zpdWords;
         if (selectedWords.length === 0) selectedWords = unmastered;
