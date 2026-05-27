@@ -307,36 +307,35 @@
         .nav-btn-secondary:hover {
             border-color: #667eea;
             color: #667eea;
+       function loadNextWord() {
+    document.getElementById('loadingState').classList.remove('hidden');
+    document.getElementById('wordDisplay').classList.add('hidden');
+    document.getElementById('questionContainer').classList.add('hidden');
+    document.getElementById('feedbackContainer').classList.add('hidden');
+    document.getElementById('navigationButtons').classList.add('hidden');
+    
+    setTimeout(() => {
+        try {
+            const availableWords = window.VOCABULARY.unit1.words;
+            
+            // Just pick a random word
+            const randomIndex = Math.floor(Math.random() * availableWords.length);
+            currentWord = availableWords[randomIndex];
+            
+            if (!currentWord) {
+                alert('No words available');
+                return;
+            }
+            
+            attemptNumber = 0;
+            displayWord();
+            
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error: ' + error.message);
         }
-        
-        .loading-word {
-            text-align: center;
-            padding: 60px 20px;
-        }
-        
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid #e0e0e0;
-            border-top-color: #667eea;
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .hidden { display: none !important; }
-        
-        @media (max-width: 768px) {
-            .word-card { padding: 32px 24px; }
-            .word-text { font-size: 40px; }
-        }
-    </style>
-</head>
-<body>
+    }, 1000);
+}
 
 <div class="learning-header">
     <div class="header-content">
