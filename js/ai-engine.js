@@ -10,60 +10,52 @@ class AIVocabularyEngine {
         this.attemptNumber = 0;
     }
     
-    // Select next word based on ZPD
     selectNextWord(availableWords, studentLevel = 2.0) {
-    const config = window.SYMPHONY_CONFIG.ZPD;
-    
-    const student = window.AUTH.getCurrentUser();
-    if (!student) return null;
-    
-    // Get words that haven't been mastered yet
-    const unmastered = availableWords.filter(word => {
-        const progress = window.STORAGE.getWordProgress(word.id);
-        return !progress || !progress.mastered;
-    });
-    
-    if (unmastered.length === 0) {
-        return null;
-    }
-    
-    // Get words within ZPD range
-    const zpdWords = unmastered.filter(word => {
-        return word.difficulty >= studentLevel - 0.5 &&
-               word.difficulty <= studentLevel + 0.8;
-    });
-    
-    // Prioritize words that haven't been attempted yet
-    const neverAttempted = zpdWords.filter(word => {
-        const progress = window.STORAGE.getWordProgress(word.id);
-        return !progress || progress.attempts.length === 0;
-    });
-    
-    // Choose which pool to select from
-    let selectedWords = neverAttempted.length > 0 ? neverAttempted : zpdWords;
-    if (selectedWords.length === 0) selectedWords = unmastered;
-    
-    // Shuffle and pick random to avoid repetition
-    const shuffled = this.shuffleArray(selectedWords);
-    return shuffled[0];
-}
-
-shuffleArray(array) {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-}
-        // Select word
+        const config = window.SYMPHONY_CONFIG.ZPD;
+        
+        const student = window.AUTH.getCurrentUser();
+        if (!student) return null;
+        
+        // Get words that haven't been mastered yet
+        const unmastered = availableWords.filter(word => {
+            const progress = window.STORAGE.getWordProgress(word.id);
+            return !progress || !progress.mastered;
+        });
+        
+        if (unmastered.length === 0) {
+            return null;
+        }
+        
+        // Get words within ZPD range
+        const zpdWords = unmastered.filter(word => {
+            return word.difficulty >= studentLevel - 0.5 &&
+                   word.difficulty <= studentLevel + 0.8;
+        });
+        
+        // Prioritize words that haven't been attempted yet
+        const neverAttempted = zpdWords.filter(word => {
+            const progress = window.STORAGE.getWordProgress(word.id);
+            return !progress || progress.attempts.length === 0;
+        });
+        
+        // Choose which pool to select from
         let selectedWords = neverAttempted.length > 0 ? neverAttempted : zpdWords;
         if (selectedWords.length === 0) selectedWords = unmastered;
         
-        return selectedWords[Math.floor(Math.random() * selectedWords.length)];
+        // Shuffle and pick random to avoid repetition
+        const shuffled = this.shuffleArray(selectedWords);
+        return shuffled[0];
     }
     
-    // Get scaffolding for current attempt
+    shuffleArray(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+    
     getScaffolding(word, attemptNumber) {
         const maxLevel = 4;
         const level = Math.min(attemptNumber, maxLevel);
@@ -71,11 +63,9 @@ shuffleArray(array) {
         return word.scaffolding[`level${level}`];
     }
     
-    // Check answer
     checkAnswer(word, userAnswer, correctAnswer, attemptNumber) {
         const isCorrect = this.normalizeAnswer(userAnswer) === this.normalizeAnswer(correctAnswer);
         
-        // Calculate points
         const config = window.SYMPHONY_CONFIG.POINTS;
         let points = 0;
         
@@ -89,10 +79,8 @@ shuffleArray(array) {
             }
         }
         
-        // Generate feedback
         const feedback = this.generateFeedback(isCorrect, attemptNumber, points);
         
-        // Save progress
         window.STORAGE.saveWordProgress(word.id, {
             attemptNumber: attemptNumber,
             correct: isCorrect,
@@ -101,27 +89,24 @@ shuffleArray(array) {
             timestamp: new Date().toISOString()
         });
         
-        // Update student points
         if (points > 0) {
             const student = window.AUTH.getCurrentUser();
             student.points += points;
             window.AUTH.updateStudent({ points: student.points });
         }
         
-        // Update session
         window.AUTH.updateSession({
             totalAttempts: (window.STORAGE.getCurrentSession()?.totalAttempts || 0) + 1,
             correctAttempts: (window.STORAGE.getCurrentSession()?.correctAttempts || 0) + (isCorrect ? 1 : 0)
         });
         
-        // Log research event
         window.AUTH.logResearchEvent('word_attempt', {
             student: window.AUTH.currentUser,
             wordId: word.id,
             attemptNumber: attemptNumber,
             scaffoldingLevel: attemptNumber,
             correct: isCorrect,
-            timeSpent: 0, // TODO: Track time
+            timeSpent: 0,
             pointsEarned: points
         });
         
@@ -132,12 +117,10 @@ shuffleArray(array) {
         };
     }
     
-    // Normalize answer
     normalizeAnswer(answer) {
         return answer.toLowerCase().trim();
     }
     
-    // Generate personalized feedback (CTML Personalization + SDT Competence)
     generateFeedback(isCorrect, attemptNumber, points) {
         if (isCorrect && attemptNumber === 0) {
             return {
@@ -182,18 +165,15 @@ shuffleArray(array) {
         }
     }
     
-    // Adjust student difficulty (ZPD adaptation)
     adjustDifficulty(student) {
         const config = window.SYMPHONY_CONFIG.ZPD;
         
-        // Get recent performance (last 10 words)
         const recentWords = Object.values(student.wordProgress)
             .sort((a, b) => new Date(b.lastReview) - new Date(a.lastReview))
             .slice(0, 10);
         
-        if (recentWords.length < 5) return; // Not enough data
+        if (recentWords.length < 5) return;
         
-        // Calculate success rate
         const totalAttempts = recentWords.reduce((sum, w) => sum + w.totalAttempts, 0);
         const correctAttempts = recentWords.reduce((sum, w) => sum + w.correctAttempts, 0);
         const successRate = correctAttempts / totalAttempts;
@@ -201,13 +181,11 @@ shuffleArray(array) {
         let newDifficulty = student.currentDifficulty;
         
         if (successRate > config.TARGET_SUCCESS_RATE_MAX) {
-            // Too easy - increase difficulty
             newDifficulty = Math.min(
                 student.currentDifficulty + config.DIFFICULTY_ADJUSTMENT,
                 config.MAX_DIFFICULTY
             );
         } else if (successRate < config.TARGET_SUCCESS_RATE_MIN) {
-            // Too hard - decrease difficulty
             newDifficulty = Math.max(
                 student.currentDifficulty - config.DIFFICULTY_ADJUSTMENT,
                 config.MIN_DIFFICULTY
@@ -218,7 +196,6 @@ shuffleArray(array) {
             student.currentDifficulty = newDifficulty;
             window.AUTH.updateStudent({ currentDifficulty: newDifficulty });
             
-            // Log adjustment
             window.AUTH.logResearchEvent('difficulty_adjusted', {
                 username: student.username,
                 oldDifficulty: student.currentDifficulty,
@@ -226,44 +203,6 @@ shuffleArray(array) {
                 successRate: successRate
             });
         }
-    }
-    
-    // Calculate scaffolding efficiency
-    getScaffoldingStats(student) {
-        const allProgress = Object.values(student.wordProgress);
-        
-        if (allProgress.length === 0) {
-            return {
-                avgScaffoldingLevel: 0,
-                scaffoldingDecreasing: false,
-                independentSuccessRate: 0
-            };
-        }
-        
-        const avgScaffolding = allProgress.reduce((sum, p) => {
-            const avg = p.scaffoldingLevels.reduce((s, l) => s + l, 0) / p.scaffoldingLevels.length;
-            return sum + avg;
-        }, 0) / allProgress.length;
-        
-        // Check if scaffolding is decreasing over time
-        const recent5 = allProgress.slice(-5);
-        const earlier5 = allProgress.slice(-10, -5);
-        
-        const recentAvg = recent5.length > 0
-            ? recent5.reduce((sum, p) => sum + (p.scaffoldingLevels[p.scaffoldingLevels.length - 1] || 0), 0) / recent5.length
-            : avgScaffolding;
-        
-        const earlierAvg = earlier5.length > 0
-            ? earlier5.reduce((sum, p) => sum + (p.scaffoldingLevels[p.scaffoldingLevels.length - 1] || 0), 0) / earlier5.length
-            : recentAvg;
-        
-        return {
-            avgScaffoldingLevel: avgScaffolding.toFixed(2),
-            scaffoldingDecreasing: recentAvg < earlierAvg,
-            independentSuccessRate: allProgress.filter(p => 
-                p.attempts.length > 0 && p.attempts[0].correct
-            ).length / allProgress.length
-        };
     }
 }
 
