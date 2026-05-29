@@ -47,5 +47,4 @@ const VOCABULARY_DATABASE = {
     }
 };
 
-window.VOCABULARY = VOCABULARY_DATABASE;
-console.log('✅ Vocabulary database loaded successfully! Units 1-2 ready!');
+
