@@ -10,29 +10,29 @@
     <div class="container">
         <div class="header">
             <h1>📚 Learn Vocabulary</h1>
-            <a href="student-dashboard.html" class="btn-back">← Back</a>
+            <a href="student-dashboard.html" class="btn-back">← Back to Dashboard</a>
         </div>
 
-        <div id="wordImage" style="text-align: center; margin: 20px;"></div>
-        <div id="wordText" style="font-size: 32px; font-weight: bold; text-align: center; margin: 20px;"></div>
+        <div id="wordImage" style="text-align: center; margin: 20px; min-height: 250px;"></div>
+        <div id="wordText" style="font-size: 36px; font-weight: bold; text-align: center; margin: 20px;"></div>
         <div id="wordPronunciation" style="font-size: 18px; text-align: center; margin: 10px; color: #666;"></div>
 
-        <button id="audioBtn" onclick="playAudio()" style="display: block; margin: 20px auto; padding: 10px 20px; font-size: 16px; cursor: pointer;">🔊 Hear Word</button>
+        <button id="audioBtn" onclick="playAudio()" style="display: block; margin: 20px auto; padding: 12px 24px; font-size: 16px; cursor: pointer; background: #4CAF50; color: white; border: none; border-radius: 5px;">🔊 Hear Word</button>
 
         <div id="questionContainer" style="display: none; margin: 30px; text-align: center;">
             <h3 id="questionText"></h3>
             <div id="answerOptions" style="margin: 20px;"></div>
-            <button onclick="submitAnswer()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">Submit</button>
+            <button onclick="submitAnswer()" style="padding: 10px 20px; font-size: 16px; cursor: pointer; background: #2196F3; color: white; border: none; border-radius: 5px;">Submit</button>
         </div>
 
         <div id="feedbackContainer" style="display: none; margin: 30px; text-align: center; font-size: 18px;">
-            <div id="feedbackText"></div>
+            <div id="feedbackText" style="margin-bottom: 10px;"></div>
             <p id="pointsText"></p>
-            <button onclick="nextWord()" style="padding: 10px 20px; font-size: 16px; margin-top: 20px; cursor: pointer;">Next Word →</button>
+            <button onclick="nextWord()" style="padding: 10px 20px; font-size: 16px; margin-top: 20px; cursor: pointer; background: #FF9800; color: white; border: none; border-radius: 5px;">Next Word →</button>
         </div>
 
-        <p style="text-align: center; margin-top: 30px;">
-            Points: <span id="totalPoints">0</span> | Words: <span id="wordsLearned">0</span>
+        <p style="text-align: center; margin-top: 30px; font-size: 16px;">
+            Points: <span id="totalPoints">0</span> | Words Learned: <span id="wordsLearned">0</span>/15
         </p>
     </div>
 
@@ -46,7 +46,7 @@
         function loadWord() {
             try {
                 if (!window.VOCABULARY || !window.VOCABULARY.unit1) {
-                    alert('Error: Vocabulary not loaded!');
+                    console.error('Vocabulary not loaded yet');
                     return;
                 }
 
@@ -62,8 +62,7 @@
                 document.getElementById('audioBtn').style.display = 'block';
 
             } catch (error) {
-                console.error('Error:', error);
-                alert('Error loading word: ' + error.message);
+                console.error('Error loading word:', error);
             }
         }
 
@@ -84,7 +83,8 @@
             document.getElementById('questionText').textContent = question;
             document.getElementById('audioBtn').style.display = 'none';
             document.getElementById('questionContainer').style.display = 'block';
-            document.getElementById('answerOptions').innerHTML = `<input type="text" id="userAnswer" placeholder="Type your answer" style="padding: 10px; font-size: 16px; width: 200px;">`;
+            document.getElementById('answerOptions').innerHTML = `<input type="text" id="userAnswer" placeholder="Type your answer" style="padding: 10px; font-size: 16px; width: 250px;">`;
+            document.getElementById('userAnswer').focus();
         }
 
         function submitAnswer() {
@@ -100,11 +100,11 @@
                 document.getElementById('feedbackText').innerHTML = '✅ <strong>Correct!</strong>';
                 document.getElementById('feedbackText').style.color = 'green';
             } else {
-                document.getElementById('feedbackText').innerHTML = '❌ Wrong! Try again or skip.';
+                document.getElementById('feedbackText').innerHTML = '❌ Wrong! The answer is: <strong>' + currentWord.word + '</strong>';
                 document.getElementById('feedbackText').style.color = 'red';
             }
 
-            document.getElementById('pointsText').textContent = `+${points} points`;
+            document.getElementById('pointsText').textContent = `Points: +${points}`;
             document.getElementById('totalPoints').textContent = totalPoints;
             document.getElementById('wordsLearned').textContent = wordsLearned;
             document.getElementById('questionContainer').style.display = 'none';
@@ -112,10 +112,10 @@
         }
 
         function nextWord() {
-           setTimeout(loadWord, 500);
+            setTimeout(loadWord, 500);
         }
 
-        loadWord();
+        setTimeout(loadWord, 500);
     </script>
 </body>
 </html>
