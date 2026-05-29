@@ -10,195 +10,112 @@
     <div class="container">
         <div class="header">
             <h1>📚 Learn Vocabulary</h1>
-            <a href="student-dashboard.html" class="btn-back">← Back to Dashboard</a>
+            <a href="student-dashboard.html" class="btn-back">← Back</a>
         </div>
 
-        <div class="learning-container">
-            <!-- Word Display -->
-            <div id="wordDisplay" class="word-card">
-                <div id="wordImage"></div>
-                <div id="wordText" class="word-text hidden"></div>
-                <div id="wordPronunciation" class="word-pronunciation hidden"></div>
-                <button id="audioBtn" class="btn-audio">🔊 Hear Word</button>
-            </div>
+        <div id="wordImage" style="text-align: center; margin: 20px;"></div>
+        <div id="wordText" style="font-size: 32px; font-weight: bold; text-align: center; margin: 20px;"></div>
+        <div id="wordPronunciation" style="font-size: 18px; text-align: center; margin: 10px; color: #666;"></div>
 
-            <!-- Question -->
-            <div id="questionContainer" class="hidden">
-                <h3 id="questionText"></h3>
-                <div id="answerOptions"></div>
-                <button id="submitBtn" class="btn-primary">Submit Answer</button>
-            </div>
+        <button id="audioBtn" onclick="playAudio()" style="display: block; margin: 20px auto; padding: 10px 20px; font-size: 16px; cursor: pointer;">🔊 Hear Word</button>
 
-            <!-- Feedback -->
-            <div id="feedbackContainer" class="hidden">
-                <div id="feedbackText"></div>
-                <p id="pointsText"></p>
-            </div>
-
-            <!-- Navigation -->
-            <div id="navigationButtons" class="hidden">
-                <button id="nextBtn" class="btn-primary">Next Word →</button>
-                <button id="skipBtn" class="btn-secondary">Skip</button>
-            </div>
-
-            <!-- Completion -->
-            <div id="completionScreen" class="hidden">
-                <h2>🎉 Congratulations!</h2>
-                <p id="completionText"></p>
-                <button onclick="location.href='student-dashboard.html'" class="btn-primary">Back to Dashboard</button>
-            </div>
+        <div id="questionContainer" style="display: none; margin: 30px; text-align: center;">
+            <h3 id="questionText"></h3>
+            <div id="answerOptions" style="margin: 20px;"></div>
+            <button onclick="submitAnswer()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">Submit</button>
         </div>
 
-        <div class="progress">
-            <p>Points: <span id="totalPoints">0</span></p>
-            <p>Words Learned: <span id="wordsLearned">0</span>/15</p>
+        <div id="feedbackContainer" style="display: none; margin: 30px; text-align: center; font-size: 18px;">
+            <div id="feedbackText"></div>
+            <p id="pointsText"></p>
+            <button onclick="nextWord()" style="padding: 10px 20px; font-size: 16px; margin-top: 20px; cursor: pointer;">Next Word →</button>
         </div>
+
+        <p style="text-align: center; margin-top: 30px;">
+            Points: <span id="totalPoints">0</span> | Words: <span id="wordsLearned">0</span>
+        </p>
     </div>
 
-    <script src="js/config.js"></script>
-    <script src="js/storage.js"></script>
     <script src="js/vocabulary-data.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/ai-engine.js"></script>
-    <script src="js/utils.js"></script>
     <script>
         let currentWord = null;
-        let currentQuestion = null;
-        let attemptNumber = 0;
-        let currentUnit = 'unit1';
-        let sessionWords = [];
+        let totalPoints = 0;
+        let wordsLearned = 0;
+        let attemptCount = 0;
 
-        function initLearning() {
-            checkAuth();
-            const urlParams = new URLSearchParams(window.location.search);
-            currentUnit = urlParams.get('unit') || 'unit1';
-            loadNextWord();
-        }
-
-        function loadNextWord() {
+        function loadWord() {
             try {
-                if (!window.VOCABULARY || !window.VOCABULARY[currentUnit]) {
-                    alert('Error: Vocabulary data not loaded!');
+                if (!window.VOCABULARY || !window.VOCABULARY.unit1) {
+                    alert('Error: Vocabulary not loaded!');
                     return;
                 }
 
-                const words = window.VOCABULARY[currentUnit].words;
-                if (!words || words.length === 0) {
-                    showCompletionScreen();
-                    return;
-                }
+                const words = window.VOCABULARY.unit1.words;
+                currentWord = words[Math.floor(Math.random() * words.length)];
+                attemptCount = 0;
 
-                const randomIndex = Math.floor(Math.random() * words.length);
-                currentWord = words[randomIndex];
-                attemptNumber = 0;
-                displayWord();
+                document.getElementById('wordImage').innerHTML = `<img src="${currentWord.imageUrl}" alt="${currentWord.word}" style="max-width: 300px; height: auto;">`;
+                document.getElementById('wordText').textContent = '';
+                document.getElementById('wordPronunciation').textContent = '';
+                document.getElementById('questionContainer').style.display = 'none';
+                document.getElementById('feedbackContainer').style.display = 'none';
+                document.getElementById('audioBtn').style.display = 'block';
+
             } catch (error) {
-                console.error('Error loading word:', error);
-                alert('Error: ' + error.message);
+                console.error('Error:', error);
+                alert('Error loading word: ' + error.message);
             }
         }
 
-        function displayWord() {
-            if (!currentWord) return;
-
-            document.getElementById('wordImage').innerHTML = `<img src="${currentWord.imageUrl}" alt="${currentWord.word}" style="max-width: 100%; height: auto;">`;
+        function playAudio() {
             document.getElementById('wordText').textContent = currentWord.word.toUpperCase();
             document.getElementById('wordPronunciation').textContent = currentWord.pronunciation;
-            document.getElementById('audioBtn').style.display = 'block';
 
-            hideElements(['questionContainer', 'feedbackContainer', 'navigationButtons']);
-        }
-
-        function playWordAudio() {
             const utterance = new SpeechSynthesisUtterance(currentWord.word);
             utterance.rate = 0.8;
             window.speechSynthesis.speak(utterance);
 
-            document.getElementById('wordText').classList.remove('hidden');
-            document.getElementById('wordPronunciation').classList.remove('hidden');
-
-            setTimeout(() => showQuestion(), 2000);
+            setTimeout(showQuestion, 2000);
         }
 
         function showQuestion() {
-            attemptNumber++;
-            const levelKey = `level${Math.min(attemptNumber - 1, 3)}`;
-            const scaffolding = currentWord.scaffolding[levelKey] || currentWord.scaffolding.level3;
-
-            document.getElementById('questionText').textContent = scaffolding.prompt;
+            attemptCount++;
+            const question = currentWord.simpleDefinition || 'What is this word?';
+            document.getElementById('questionText').textContent = question;
             document.getElementById('audioBtn').style.display = 'none';
-
-            if (scaffolding.type === 'multipleChoice') {
-                showMultipleChoice(scaffolding.options);
-            } else {
-                showTextInput();
-            }
-
-            showElements(['questionContainer']);
+            document.getElementById('questionContainer').style.display = 'block';
+            document.getElementById('answerOptions').innerHTML = `<input type="text" id="userAnswer" placeholder="Type your answer" style="padding: 10px; font-size: 16px; width: 200px;">`;
         }
 
-        function showMultipleChoice(options) {
-            const container = document.getElementById('answerOptions');
-            container.innerHTML = '';
-            options.forEach(option => {
-                const btn = document.createElement('button');
-                btn.textContent = option.text;
-                btn.className = 'btn-option';
-                btn.onclick = () => submitAnswer(option.text, option.correct);
-                container.appendChild(btn);
-            });
-        }
+        function submitAnswer() {
+            const userAnswer = document.getElementById('userAnswer').value.toLowerCase();
+            const correctWord = currentWord.word.toLowerCase();
+            const isCorrect = userAnswer === correctWord;
 
-        function showTextInput() {
-            const container = document.getElementById('answerOptions');
-            container.innerHTML = '<input type="text" id="textAnswer" placeholder="Type your answer" class="text-input">';
-        }
-
-        function submitAnswer(answer, isCorrect) {
-            const points = isCorrect ? 15 - (attemptNumber - 1) * 5 : 0;
-            showFeedback(isCorrect, points);
-            updateProgress(points);
-        }
-
-        function showFeedback(isCorrect, points) {
-            const feedback = document.getElementById('feedbackText');
+            let points = 0;
             if (isCorrect) {
-                feedback.innerHTML = '✅ <strong>Correct!</strong>';
-                feedback.style.color = 'green';
+                points = Math.max(15 - attemptCount * 5, 5);
+                totalPoints += points;
+                wordsLearned++;
+                document.getElementById('feedbackText').innerHTML = '✅ <strong>Correct!</strong>';
+                document.getElementById('feedbackText').style.color = 'green';
             } else {
-                feedback.innerHTML = '❌ <strong>Not quite right</strong>';
-                feedback.style.color = 'red';
+                document.getElementById('feedbackText').innerHTML = '❌ Wrong! Try again or skip.';
+                document.getElementById('feedbackText').style.color = 'red';
             }
-            document.getElementById('pointsText').textContent = `Points: +${points}`;
 
-            hideElements(['questionContainer']);
-            showElements(['feedbackContainer', 'navigationButtons']);
+            document.getElementById('pointsText').textContent = `+${points} points`;
+            document.getElementById('totalPoints').textContent = totalPoints;
+            document.getElementById('wordsLearned').textContent = wordsLearned;
+            document.getElementById('questionContainer').style.display = 'none';
+            document.getElementById('feedbackContainer').style.display = 'block';
         }
 
-        function updateProgress(points) {
-            const current = parseInt(document.getElementById('totalPoints').textContent) || 0;
-            document.getElementById('totalPoints').textContent = current + points;
+        function nextWord() {
+            loadWord();
         }
 
-        function showCompletionScreen() {
-            hideElements(['wordDisplay', 'questionContainer', 'feedbackContainer', 'navigationButtons']);
-            showElements(['completionScreen']);
-            document.getElementById('completionText').textContent = `You earned ${document.getElementById('totalPoints').textContent} points!`;
-        }
-
-        function hideElements(ids) {
-            ids.forEach(id => document.getElementById(id).classList.add('hidden'));
-        }
-
-        function showElements(ids) {
-            ids.forEach(id => document.getElementById(id).classList.remove('hidden'));
-        }
-
-        document.getElementById('audioBtn').onclick = playWordAudio;
-        document.getElementById('nextBtn').onclick = loadNextWord;
-        document.getElementById('skipBtn').onclick = loadNextWord;
-
-        initLearning();
+        loadWord();
     </script>
 </body>
 </html>
