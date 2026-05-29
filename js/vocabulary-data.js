@@ -1,1 +1,23 @@
-const VOCABULARY_DATABASE = { unit1: { id: 'unit-01', title: 'School & Learning', totalWords: 3, words: [ { id: 'w001', word: 'introduce', pronunciation: '/ˌɪn.trəˈduːs/', partOfSpeech: 'verb', definition: 'To tell people your name', simpleDefinition: 'To tell people who you are', examples: ['I introduce myself.'], imageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23e3f2fd" width="400" height="300"/%3E%3Ctext x="200" y="150" text-anchor="middle" font-size="60"%3E😊%3C/text%3E%3C/svg%3E', audioScript: 'Introduce. To tell people your name.' }, { id: 'w002', word: 'nervous', pronunciation: '/ˈnɜː.vəs/', partOfSpeech: 'adjective', definition: 'Feeling worried', simpleDefinition: 'Feeling scared', examples: ['I feel nervous.'], imageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23fff3e0" width="400" height="300"/%3E%3Ctext x="200" y="150" text-anchor="middle" font-size="60"%3E😟%3C/text%3E%3C/svg%3E', audioScript: 'Nervous. Feeling worried.' }, { id: 'w003', word: 'excited', pronunciation: '/ɪkˈsaɪ.tɪd/', partOfSpeech: 'adjective', definition: 'Feeling very happy', simpleDefinition: 'Feeling happy', examples: ['I am excited!'], imageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23e8f5e9" width="400" height="300"/%3E%3Ctext x="200" y="150" text-anchor="middle" font-size="60"%3E😊%3C/text%3E%3C/svg%3E', audioScript: 'Excited. Feeling very happy.' } ] } }; window.VOCABULARY = VOCABULARY_DATABASE; console.log('✅ Vocabulary loaded!');
+const VOCABULARY_DATABASE = {
+    unit1: {
+        id: 'unit-01',
+        title: 'Test Unit',
+        totalWords: 1,
+        words: [
+            {
+                id: 'w001',
+                word: 'hello',
+                pronunciation: '/həˈloʊ/',
+                partOfSpeech: 'noun',
+                definition: 'A greeting',
+                simpleDefinition: 'A way to say hi',
+                examples: ['Hello there!'],
+                imageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23e8f5e9" width="400" height="300"/%3E%3Ctext x="200" y="150" text-anchor="middle" font-size="100"%3E👋%3C/text%3E%3C/svg%3E',
+                audioScript: 'Hello'
+            }
+        ]
+    }
+};
+
+window.VOCABULARY = VOCABULARY_DATABASE;
+console.log('✅ Vocabulary loaded:', VOCABULARY_DATABASE);
